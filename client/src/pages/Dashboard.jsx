@@ -30,7 +30,7 @@ const Dashboard = () => {
   const loadAllResume = async () => {
     setAllResume(dummyResumeData)
   }
-
+  
   const createResume = async (event) => {
     event.preventDefault()
     setShowCreateResume(false)
@@ -71,9 +71,9 @@ const Dashboard = () => {
       <div className="flex gap-4">
         <button
           onClick={() => setShowCreateResume(true)}
-          className="w-full sm:max-w-36 h-48 bg-white flex flex-col items-center justify-center rounded-lg gap-2 text-slate-600 border border-slate-300 group hover:border-indigo-500 hover:shadow-lg transition-all duration-300 cursor-pointer"
+          className="w-full sm:max-w-[9rem] h-48 bg-white flex flex-col items-center justify-center rounded-lg gap-2 text-slate-600 border border-slate-300 group hover:border-indigo-500 hover:shadow-lg transition-all duration-300 cursor-pointer"
         >
-          <PlusIcon className="size-11 p-2.5 bg-gradient-to-br from-indigo-300 to-indigo-500 text-white rounded-full transition-transform duration-300 group-hover:scale-105" />
+          <PlusIcon className="w-11 h-11 p-2.5 bg-gradient-to-br from-indigo-300 to-indigo-500 text-white rounded-full transition-transform duration-300 group-hover:scale-105" />
           <p className="text-sm transition-colors duration-300 group-hover:text-indigo-600">
             Create Resume
           </p>
@@ -81,9 +81,9 @@ const Dashboard = () => {
 
         <button
           onClick={() => setShowUploadResume(true)}
-          className="w-full sm:max-w-36 h-48 bg-white flex flex-col items-center justify-center rounded-lg gap-2 text-slate-600 border border-slate-300 group hover:border-purple-500 hover:shadow-lg transition-all duration-300 cursor-pointer"
+          className="w-full sm:max-w-[9rem] h-48 bg-white flex flex-col items-center justify-center rounded-lg gap-2 text-slate-600 border border-slate-300 group hover:border-purple-500 hover:shadow-lg transition-all duration-300 cursor-pointer"
         >
-          <UploadCloud className="size-11 p-2.5 bg-gradient-to-br from-purple-300 to-purple-500 text-white rounded-full transition-transform duration-300 group-hover:scale-105" />
+          <UploadCloud className="w-11 h-11 p-2.5 bg-gradient-to-br from-purple-300 to-purple-500 text-white rounded-full transition-transform duration-300 group-hover:scale-105" />
           <p className="text-sm transition-colors duration-300 group-hover:text-purple-600">
             Upload Existing
           </p>
@@ -100,7 +100,7 @@ const Dashboard = () => {
           return (
             <div
               key={resume._id}
-              className="relative w-full sm:max-w-36 h-48 flex flex-col items-center justify-center rounded-lg gap-2 border group hover:shadow-lg transition-all duration-300 cursor-pointer"
+              className="relative w-full sm:max-w-[9rem] h-48 flex flex-col items-center justify-center rounded-lg gap-2 border group hover:shadow-lg transition-all duration-300 cursor-pointer"
               style={{
                 background: `linear-gradient(135deg, ${baseColor}10, ${baseColor}40)`,
                 borderColor: `${baseColor}40`
@@ -108,7 +108,7 @@ const Dashboard = () => {
               onClick={() => navigate(`/app/builder/${resume._id}`)}
             >
               <FilePenLineIcon
-                className="size-7 transition-transform duration-300 group-hover:scale-105"
+                className="w-7 h-7 transition-transform duration-300 group-hover:scale-105"
                 style={{ color: baseColor }}
               />
 
@@ -126,7 +126,7 @@ const Dashboard = () => {
               {/* Hover Icons */}
               <div className="absolute top-1 right-1 hidden group-hover:flex items-center gap-1">
                 <TrashIcon
-                  className="size-6 p-1.5 rounded text-slate-700 hover:bg-white/50 transition-all duration-300"
+                  className="w-6 h-6 p-1.5 rounded text-slate-700 hover:bg-white/50 transition-all duration-300"
                   onClick={(e) => {
                     e.stopPropagation()
                     const confirmDelete = window.confirm(
@@ -141,7 +141,7 @@ const Dashboard = () => {
                 />
 
                 <PencilIcon
-                  className="size-6 p-1.5 rounded text-slate-700 hover:bg-white/50 transition-all duration-300"
+                  className="w-6 h-6 p-1.5 rounded text-slate-700 hover:bg-white/50 transition-all duration-300"
                   onClick={(e) => {
                     e.stopPropagation()
                     setEditResumeId(resume._id)
@@ -157,9 +157,7 @@ const Dashboard = () => {
       {/* Delete Confirmation Modal */}
       {deleteResumeId && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur z-20 flex items-center justify-center">
-          <div
-            className="bg-slate-50 p-6 rounded-lg shadow-md w-full max-w-sm text-center"
-          >
+          <div className="bg-slate-50 p-6 rounded-lg shadow-md w-full max-w-sm text-center">
             <h2 className="text-lg font-bold mb-4">
               Are you sure you want to delete this resume?
             </h2>
@@ -231,14 +229,14 @@ const Dashboard = () => {
               Select Resume File
             </label>
             <div
-              className="flex flex-col items-center justify-center gap-2 border group text-slate-400 border-slate-400 border-dashed rounded-md p-4 py-10 my-4 hover:border-green-600 hover:text-green-800 cursor-pointer transition-colors"
+              className="flex flex-col items-center justify-center gap-2 border text-slate-400 border-slate-400 border-dashed rounded-md p-4 py-10 my-4 hover:border-green-600 hover:text-green-800 cursor-pointer transition-colors"
               onClick={() => document.getElementById('resume-input').click()}
             >
               {resume ? (
                 <p className="text-green-800">{resume.name}</p>
               ) : (
                 <>
-                  <UploadIcon className="size-14 stroke-1" />
+                  <UploadIcon className="w-14 h-14 stroke-1" />
                   <p>Upload Resume</p>
                 </>
               )}
