@@ -23,8 +23,8 @@ const MinimalTemplate = ({ data, accentColor }) => {
                     {data.personal_info?.linkedin && (
                         <span className="break-all">{data.personal_info.linkedin}</span>
                     )}
-                    {data.personal_info?.website && (
-                        <span className="break-all">{data.personal_info.website}</span>
+                    {data.personal_info?.personal_website && (
+                        <span className="break-all">{data.personal_info.personal_website}</span>
                     )}
                 </div>
             </header>

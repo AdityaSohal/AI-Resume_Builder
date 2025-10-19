@@ -43,10 +43,10 @@ const ModernTemplate = ({ data, accentColor }) => {
 							<span className="break-all text-xs">{data.personal_info.linkedin.split("https://www.")[1] ? data.personal_info.linkedin.split("https://www.")[1] : data.personal_info.linkedin}</span>
 						</a>
 					)}
-					{data.personal_info?.website && (
-						<a target="_blank" href={data.personal_info?.website} className="flex items-center gap-2">
+					{data.personal_info?.personal_website && (
+						<a target="_blank" href={data.personal_info?.personal_website} className="flex items-center gap-2">
 							<Globe className="size-4" />
-							<span className="break-all text-xs">{data.personal_info.website.split("https://")[1] ? data.personal_info.website.split("https://")[1] : data.personal_info.website}</span>
+							<span className="break-all text-xs">{data.personal_info.personal_website.split("https://")[1] ? data.personal_info.personal_website.split("https://")[1] : data.personal_info.personal_website}</span>
 						</a>
 					)}
 				</div>

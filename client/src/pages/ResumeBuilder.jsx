@@ -5,8 +5,8 @@ import { ArrowLeftIcon, Briefcase, ChevronLeft, ChevronRight, FileText, FolderIc
 import PersonalInfoForm from '../components/PersonalInfoForm'
 import ResumePreview from '../components/ResumePreview'
 
-const Resumebuilder = () => {
-  const { resumeId } = useParams()
+const ResumeBuilder = () => {
+  const { resumeID } = useParams()
 
   const [resumeData, setResumeData] = useState({
     _id: '',
@@ -25,7 +25,7 @@ const Resumebuilder = () => {
   const [removeBackground, setRemoveBackground] = useState(false)
 
   const loadExistingResume = async () => {
-    const resume = dummyResumeData.find((resume) => resume._id === resumeId)
+    const resume = dummyResumeData.find((resume) => resume._id === resumeID)
     if (resume) {
       setResumeData(resume)
       document.title = resume.title
@@ -47,7 +47,7 @@ const Resumebuilder = () => {
 
   useEffect(() => {
     loadExistingResume()
-  }, [resumeId])
+  }, [resumeID])
 
   return (
     <div>
@@ -115,4 +115,4 @@ const Resumebuilder = () => {
   )
 }
 
-export default Resumebuilder
+export default ResumeBuilder
