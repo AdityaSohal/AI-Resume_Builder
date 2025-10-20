@@ -1,7 +1,7 @@
 import React from 'react'
 import { Sparkles } from 'lucide-react' 
 
-const ProfessionalSummaryForm = ({ data, onChange, setResumeData }) => {
+const ProfessionalSummaryForm = ({ data, onChange }) => {
     return (
         <div className="space-y-4">
             {/* Header */}

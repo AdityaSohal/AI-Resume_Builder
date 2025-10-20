@@ -1,4 +1,4 @@
-import React, { act, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { dummyResumeData } from '../assets/assets'
 import {
@@ -17,7 +17,8 @@ import ResumePreview from '../components/ResumePreview'
 import TemplateSelector from '../components/TemplateSelector'
 import { ColorPicker } from '../components/ColorPicker'
 import ProfessionalSummaryForm from '../components/ProfessionalSummaryForm'
-import ExperienceForm from '../ExperienceForm'
+import ExperienceForm from '../components/ExperienceForm'
+import EducationForm from '../components/EducationForm'
 
 const ResumeBuilder = () => {
   const { resumeID } = useParams()
@@ -38,14 +39,6 @@ const ResumeBuilder = () => {
 
   const [removeBackground, setRemoveBackground] = useState(false)
 
-  const loadExistingResume = async () => {
-    const resume = dummyResumeData.find((r) => r._id === resumeID)
-    if (resume) {
-      setResumeData(resume)
-      document.title = resume.title
-    }
-  }
-
   const [activeSectionIndex, setActiveSectionIndex] = useState(0)
 
   const sections = [
@@ -60,6 +53,13 @@ const ResumeBuilder = () => {
   const activeSection = sections[activeSectionIndex]
 
   useEffect(() => {
+    const loadExistingResume = async () => {
+      const resume = dummyResumeData.find((r) => r._id === resumeID)
+      if (resume) {
+        setResumeData(resume)
+        document.title = resume.title
+      }
+    }
     loadExistingResume()
   }, [resumeID])
 
@@ -153,10 +153,13 @@ const ResumeBuilder = () => {
                   />
                 )}
                 {activeSection.id === 'summary' &&(
-                  <ProfessionalSummaryForm data={resumeData.professional_summary} onChange={(data)=>setResumeData(prev=>({...prev, professional_summary:data}))} setResumeData={setResumeData}/>
+                  <ProfessionalSummaryForm data={resumeData.professional_summary} onChange={(data)=>setResumeData(prev=>({...prev, professional_summary:data}))}/>
                 )}
                 {activeSection.id === 'experience' &&(
                   <ExperienceForm data={resumeData.experience} onChange={(data)=>setResumeData(prev=>({...prev, experience:data}))} />
+                )}
+                {activeSection.id === 'education' &&(
+                  <EducationForm data={resumeData.education} onChange={(data)=>setResumeData(prev=>({...prev, education:data}))} />
                 )}
                 {/* Add other sections here */}
               </div>
