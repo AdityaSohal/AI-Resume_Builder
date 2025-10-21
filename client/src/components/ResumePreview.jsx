@@ -22,13 +22,11 @@ const ResumePreview = ({ data, template, accentColor, classes = "" }) => {
     if (!data) return null;
 
     return (
-        <div className='w-full bg-gray-100'>
-            <div
-                id='resume-preview'
-                className={`border border-gray-200 print:shadow-none print:border-none ${classes}`}
-            >
-                {renderTemplate()}
-            </div>
+        <div
+            id='resume-preview'
+            className={`w-full bg-gray-100 border border-gray-200 print:shadow-none print:border-none print:bg-white ${classes}`}
+        >
+            {renderTemplate()}
 
             <style>
                 {`
@@ -44,6 +42,9 @@ const ResumePreview = ({ data, template, accentColor, classes = "" }) => {
                   }
                   body * {
                     visibility: hidden;
+                  }
+                  #resume-preview, #resume-preview * {
+                    visibility: visible;
                   }
                   #resume-preview {
                     position: absolute;

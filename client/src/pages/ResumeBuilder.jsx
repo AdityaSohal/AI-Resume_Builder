@@ -6,9 +6,13 @@ import {
   Briefcase,
   ChevronLeft,
   ChevronRight,
+  DownloadIcon,
+  EyeIcon,
+  EyeOffIcon,
   FileText,
   FolderIcon,
   GraduationCap,
+  Share2,
   Sparkle,
   User,
 } from 'lucide-react'
@@ -34,13 +38,12 @@ const ResumeBuilder = () => {
     education: [],
     projects: [],
     skills: [],
-    template: 'classic', // ✅ correct template field
-    accent_color: '#3B82F6', // ✅ correct color field
+    template: 'classic',
+    accent_color: '#3B82F6',
     public: false,
   })
 
   const [removeBackground, setRemoveBackground] = useState(false)
-
   const [activeSectionIndex, setActiveSectionIndex] = useState(0)
 
   const sections = [
@@ -59,11 +62,30 @@ const ResumeBuilder = () => {
       const resume = dummyResumeData.find((r) => r._id === resumeID)
       if (resume) {
         setResumeData(resume)
-        document.title = resume.title
+        document.title = resume.title || 'Resume Builder'
       }
     }
     loadExistingResume()
   }, [resumeID])
+
+  const changeResumeVisibility = () => {
+    setResumeData((prev) => ({ ...prev, public: !prev.public }))
+  }
+
+  const handleShare = () => {
+    const frontendUrl = window.location.href.split('/app/')[0]
+    const resumeUrl = `${frontendUrl}/view/${resumeID}`
+
+    if (navigator.share) {
+      navigator.share({ url: resumeUrl, text: 'My Resume' })
+    } else {
+      alert('Share not supported on this web browser.')
+    }
+  }
+
+  const downloadResume = () => {
+    window.print()
+  }
 
   return (
     <div>
@@ -94,7 +116,7 @@ const ResumeBuilder = () => {
 
               {/* Section navigation */}
               <div className="flex justify-between items-center mb-6 border-b border-gray-300 py-1">
-                {/* ✅ Template & ColorPicker side by side */}
+                {/* Template & ColorPicker side by side */}
                 <div className="flex items-center gap-3">
                   <TemplateSelector
                     selectedTemplate={resumeData.template}
@@ -111,9 +133,9 @@ const ResumeBuilder = () => {
                   />
                 </div>
 
-                {/* Section navigation buttons */}
+                {/* Navigation buttons */}
                 <div className="flex items-center gap-2">
-                  {activeSectionIndex !== 0 && (
+                  {activeSectionIndex > 0 && (
                     <button
                       onClick={() =>
                         setActiveSectionIndex((prev) => Math.max(prev - 1, 0))
@@ -154,28 +176,97 @@ const ResumeBuilder = () => {
                     setRemoveBackground={setRemoveBackground}
                   />
                 )}
-                {activeSection.id === 'summary' &&(
-                  <ProfessionalSummaryForm data={resumeData.professional_summary} onChange={(data)=>setResumeData(prev=>({...prev, professional_summary:data}))}/>
+
+                {activeSection.id === 'summary' && (
+                  <ProfessionalSummaryForm
+                    data={resumeData.professional_summary}
+                    onChange={(data) =>
+                      setResumeData((prev) => ({
+                        ...prev,
+                        professional_summary: data,
+                      }))
+                    }
+                  />
                 )}
-                {activeSection.id === 'experience' &&(
-                  <ExperienceForm data={resumeData.experience} onChange={(data)=>setResumeData(prev=>({...prev, experience:data}))} />
+
+                {activeSection.id === 'experience' && (
+                  <ExperienceForm
+                    data={resumeData.experience}
+                    onChange={(data) =>
+                      setResumeData((prev) => ({ ...prev, experience: data }))
+                    }
+                  />
                 )}
-                {activeSection.id === 'education' &&(
-                  <EducationForm data={resumeData.education} onChange={(data)=>setResumeData(prev=>({...prev, education:data}))} />
+
+                {activeSection.id === 'education' && (
+                  <EducationForm
+                    data={resumeData.education}
+                    onChange={(data) =>
+                      setResumeData((prev) => ({ ...prev, education: data }))
+                    }
+                  />
                 )}
-                {activeSection.id === 'projects' &&(
-                  <ProjectForm data={resumeData.projects} onChange={(data)=>setResumeData(prev=>({...prev, projects:data}))} />
+
+                {activeSection.id === 'projects' && (
+                  <ProjectForm
+                    data={resumeData.projects}
+                    onChange={(data) =>
+                      setResumeData((prev) => ({ ...prev, projects: data }))
+                    }
+                  />
                 )}
-                {activeSection.id === 'skills' &&(
-                  <SkillForm data={resumeData.skills} onChange={(data)=>setResumeData(prev=>({...prev, skills:data}))} />
+
+                {activeSection.id === 'skills' && (
+                  <SkillForm
+                    data={resumeData.skills}
+                    onChange={(data) =>
+                      setResumeData((prev) => ({ ...prev, skills: data }))
+                    }
+                  />
                 )}
-                {/* Add other sections here */}
               </div>
+
+              <button
+                onClick={() => alert('Changes saved successfully!')}
+                className="bg-gradient-to-r from-green-100 to-green-200 text-green-600 ring hover:ring-green-400 transition-all rounded-md px-6 py-2 mt-6 text-sm"
+              >
+                Save Changes
+              </button>
             </div>
           </div>
 
           {/* RIGHT PANEL - PREVIEW */}
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-7 max-lg:mt-6">
+            <div className="relative w-full">
+              <div className="absolute bottom-3 left-0 right-0 flex items-center justify-end gap-2">
+                {resumeData.public && (
+                  <button
+                    onClick={handleShare}
+                    className="flex items-center p-2 px-3 text-sm bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600 rounded-lg ring-blue-300 hover:ring transition-colors"
+                  >
+                    <Share2 className="size-4" />
+                  </button>
+                )}
+                <button
+                  onClick={changeResumeVisibility}
+                  className="flex items-center p-2 px-3 text-sm bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600 rounded-lg ring-purple-300 hover:ring transition-colors"
+                >
+                  {resumeData.public ? (
+                    <EyeIcon className="size-4" />
+                  ) : (
+                    <EyeOffIcon className="size-4" />
+                  )}
+                  {resumeData.public ? 'Public' : 'Private'}
+                </button>
+                <button
+                  onClick={downloadResume}
+                  className="flex items-center p-2 px-3 text-sm bg-gradient-to-br from-green-100 to-green-200 text-green-600 rounded-lg ring-green-300 hover:ring transition-colors"
+                >
+                  <DownloadIcon className="size-4" />
+                  Download
+                </button>
+              </div>
+            </div>
             <ResumePreview
               data={resumeData}
               template={resumeData.template}
