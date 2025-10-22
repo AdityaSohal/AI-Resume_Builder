@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 const resumeSchema = new mongoose.Schema({
     userID : {type: mongoose.Schema.Types.ObjectId, ref:"User"},
     title : {type: String, default:'untitled resume'},
-    public : {type: Boolean, default:'false'},
+    public : {type: Boolean, default: false},
     template : {type: String, default:'classic'},
     accent_color : {type: String, default: '#3B82F6'},
     professional_summary : {type: String, default: ''},
@@ -45,5 +45,5 @@ const resumeSchema = new mongoose.Schema({
     ],
 },{timestamps: true, minimize:false})
 
-const resume = mongoose.model('Resume',resumeSchema)
-export default resume;
+const Resume = mongoose.model('Resume',resumeSchema)
+export default Resume;
