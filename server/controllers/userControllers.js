@@ -1,3 +1,5 @@
+// server/controllers/userControllers.js
+
 import User from "../models/user.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -58,14 +60,20 @@ export const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
 
+        // Check if fields are present
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
+
         // Find user by email
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
-        // Compare passwords using the model's method
-        const isMatch = user.comparePasswords(password);
+        // Compare passwords using bcrypt directly (FIX HERE)
+        const isMatch = await bcrypt.compare(password, user.password);
+        
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
@@ -74,12 +82,13 @@ export const loginUser = async (req, res) => {
         const token = generateToken(user._id);
 
         // Remove password from response
-        user.password = undefined;
+        const userResponse = user.toObject();
+        delete userResponse.password;
 
         return res.status(200).json({
             message: 'Login successful',
             token,
-            user
+            user: userResponse
         });
 
     } catch (error) {
@@ -90,17 +99,16 @@ export const loginUser = async (req, res) => {
 
 // controller to get user by id
 // GET: /api/user/data
-
 export const getUserByID = async (req, res) => {
     try {
         const userID = req.userID;
         // check if the user exists
-        const user = await User.findById(userID)
+        const user = await User.findById(userID).select('-password');
+        
         if(!user){
             return res.status(404).json({message: 'User not found'})
         }
-        // return user
-        user.password = undefined;
+        
         return res.status(200).json({user});
 
     } catch (error) {
@@ -110,14 +118,12 @@ export const getUserByID = async (req, res) => {
 
 // controller to get user resume
 // GET: /api/user/resume
-
 export const getUserResume = async(req,res) =>{
-try {
-    const userID = req.userID;
-
-    const resumes = await Resume.find({userID})
-    return res.status(200).json({resumes})
-} catch (error) {
-    return res.status(400).json({ message: error.message });
-}
+    try {
+        const userID = req.userID;
+        const resumes = await Resume.find({userID});
+        return res.status(200).json({resumes})
+    } catch (error) {
+        return res.status(400).json({ message: error.message });
+    }
 };
