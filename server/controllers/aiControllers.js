@@ -1,17 +1,17 @@
 //controller for enhancing professional summary
-//post: /api/ai/enchance-pro-sum
+//post: /api/ai/enhance-pro-sum
 
 import Resume from "../models/Resume.js";
 import genAI from "../configs/ai.js";
 
-export const enchanceProfessionalSummary = async (req,res) => {
+export const enhanceProfessionalSummary = async (req,res) => {
     try {
         const {userContent} = req.body;
         if(!userContent){
             return res.status(400).json({message:'Missing Required Fields'})
         }
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const prompt = `You are an expert in resume writing. Your task is to enchance the professional summary of the resume. The summary should be 1-2 sentences also highlighting the key features, skills, experiences, and career objectives. Make it compelling and ATS-friendly. and only return text no options or anything else. User content: ${userContent}`;
+        const prompt = `You are an expert in resume writing. Your task is to enhance the professional summary of the resume. The summary should be 1-2 sentences also highlighting the key features, skills, experiences, and career objectives. Make it compelling and ATS-friendly. and only return text no options or anything else. User content: ${userContent}`;
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const enhancedContent = response.text();
@@ -22,16 +22,16 @@ export const enchanceProfessionalSummary = async (req,res) => {
 }
 
 //controller for enhancing job description
-//post: /api/ai/enchance-job-desc
+//post: /api/ai/enhance-job-desc
 
-export const enchanceJobDescription = async (req,res) => {
+export const enhanceJobDescription = async (req,res) => {
     try {
         const {userContent} = req.body;
         if(!userContent){
             return res.status(400).json({message:'Missing Required Fields'})
         }
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const prompt = `You are an expert in resume writing, your task is to enhance this job description of a resume, the job description should only be 1-2 sentences also highlighting key features, responsibilities and achievements. use action verbs and quantifiality results where possible. Make it ATS-friendly and only return text no options or anyting else. User content: ${userContent}`;
+        const prompt = `You are an expert in resume writing, your task is to enhance this job description of a resume, the job description should only be 1-2 sentences also highlighting key features, responsibilities and achievements. use action verbs and quantifiality results where possible. Make it ATS-friendly and only return text no options or anything else. User content: ${userContent}`;
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const enhancedContent = response.text();
@@ -42,7 +42,7 @@ export const enchanceJobDescription = async (req,res) => {
 }
 
 //controller for uploading resume
-//post: /api/ai/uploadresume
+//post: /api/ai/upload-resume
 
 export const uploadResume = async (req,res) => {
     try {
