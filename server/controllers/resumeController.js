@@ -71,6 +71,24 @@ export const getPublicResumeByID = async (req, res) => {
     }
 }
 
+//controller for updating the resume title
+//PUT: /api/resume/update-title
+
+export const updateResumeTitle = async (req, res) => {
+    try {
+        const userID = req.userID;
+        const { resumeID } = req.params;
+        const { title } = req.body;
+        const resume = await Resume.findOneAndUpdate({ userID, _id: resumeID }, { title }, { new: true });
+        if (!resume) {
+            return res.status(404).json({ message: 'Resume not found' });
+        }
+        return res.status(200).json({ message: 'Title updated successfully', resume });
+    } catch (error) {
+        return res.status(400).json({ message: error.message });
+    }
+}
+
 //controller for updating the resume
 //PUT: /api/resume/update
 
