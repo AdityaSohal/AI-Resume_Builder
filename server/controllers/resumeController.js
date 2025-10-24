@@ -1,6 +1,7 @@
 // controller for creating a new resume
 // POST: /api/resume/create
 
+import { json } from "stream/consumers";
 import imageKit from "../configs/imageKit.js";
 import Resume from "../models/Resume.js";
 import fs, { createReadStream } from "fs";
@@ -97,7 +98,13 @@ export const updateResume = async (req,res) => {
         const userID = req.userID;
         const {resumeID, resumeData, removeBackground} = req.body
         const image = req.file;
-        let resumeDataCopy = JSON.parse(resumeData);
+        let resumeDataCopy ;
+        if(typeof resumeData === 'string'){
+            resumeDataCopy = JSON.parse(resumeData)
+        }
+        else{
+            resumeDataCopy = structuredClone(resumeData)
+        }
         if(image){
             const imageBufferData = fs.createReadStream(image.path)
             const response = await imageKit.files.upload({
@@ -113,6 +120,7 @@ export const updateResume = async (req,res) => {
         const resume = await Resume.findOneAndUpdate({userID, _id:resumeID},resumeDataCopy,{new:true})
         return res.status(200).json({message: 'saved successfully', resume})
     } catch (error) {
+        console.error('Update resume error:', error);
         return res.status(400).json({ message: error.message });
     }
 }
