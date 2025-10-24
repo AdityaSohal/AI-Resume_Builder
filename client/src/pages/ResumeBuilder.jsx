@@ -40,7 +40,7 @@ const ResumeBuilder = () => {
     professional_summary: '',
     experience: [],
     education: [],
-    projects: [],
+    projects: [], // Fixed: was "project" in some places
     skills: [],
     template: 'classic',
     accent_color: '#3B82F6',
@@ -61,7 +61,7 @@ const ResumeBuilder = () => {
 
   const activeSection = sections[activeSectionIndex]
 
-  // ✅ Load existing resume data
+  // Load existing resume data
   useEffect(() => {
     const loadExistingResume = async () => {
       try {
@@ -75,6 +75,7 @@ const ResumeBuilder = () => {
         }
       } catch (error) {
         console.error('Error loading resume:', error.message)
+        toast.error('Failed to load resume')
       }
     }
 
@@ -83,7 +84,7 @@ const ResumeBuilder = () => {
     }
   }, [resumeID, token])
 
-  // ✅ Toggle visibility between public/private
+  // Toggle visibility between public/private
   const changeResumeVisibility = async () => {
     try {
       const formData = new FormData()
@@ -105,7 +106,7 @@ const ResumeBuilder = () => {
     }
   }
 
-  // ✅ Share resume link
+  // Share resume link
   const handleShare = () => {
     const frontendUrl = window.location.href.split('/app/')[0]
     const resumeUrl = `${frontendUrl}/view/${resumeID}`
@@ -118,35 +119,67 @@ const ResumeBuilder = () => {
     }
   }
 
-  // ✅ Download resume (print as PDF)
+  // Download resume (print as PDF)
   const downloadResume = () => {
     window.print()
   }
 
-  // ✅ Save resume changes
+  // Save resume changes - FIXED VERSION
   const saveResumeChanges = async () => {
     try {
-      const updatedResume = structuredClone(resumeData)
-
-      const formData = new FormData()
-      formData.append('resumeID', updatedResume._id)
-      formData.append('resumeData', JSON.stringify(updatedResume))
-      if (removeBackground) formData.append('removeBackground', 'yes')
-
-      // handle image upload if any
-      if (typeof updatedResume.personal_info.image === 'object') {
-        formData.append('image', updatedResume.personal_info.image)
+      // Create a clean copy without circular references
+      const cleanResumeData = {
+        _id: resumeData._id,
+        title: resumeData.title,
+        personal_info: {
+          full_name: resumeData.personal_info?.full_name || '',
+          email: resumeData.personal_info?.email || '',
+          phone: resumeData.personal_info?.phone || '',
+          location: resumeData.personal_info?.location || '',
+          profession: resumeData.personal_info?.profession || '',
+          linkedin: resumeData.personal_info?.linkedin || '',
+          personal_website: resumeData.personal_info?.personal_website || '',
+          // Include existing image URL if it's a string
+          image: typeof resumeData.personal_info?.image === 'string' ? resumeData.personal_info.image : ''
+        },
+        professional_summary: resumeData.professional_summary || '',
+        experience: resumeData.experience || [],
+        education: resumeData.education || [],
+        projects: resumeData.projects || [],
+        skills: resumeData.skills || [],
+        template: resumeData.template || 'classic',
+        accent_color: resumeData.accent_color || '#3B82F6',
+        public: resumeData.public || false,
       }
 
+      const formData = new FormData()
+      formData.append('resumeID', cleanResumeData._id)
+      formData.append('resumeData', JSON.stringify(cleanResumeData))
+      
+      if (removeBackground) {
+        formData.append('removeBackground', 'yes')
+      }
+
+      // Handle image upload if it's a File object
+      if (resumeData.personal_info?.image && typeof resumeData.personal_info.image === 'object') {
+        console.log('Uploading image:', resumeData.personal_info.image.name)
+        formData.append('image', resumeData.personal_info.image)
+      }
+
+      // Don't set Content-Type header - let browser set it with boundary
       const { data } = await api.put('/api/resume/update', formData, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { 
+          Authorization: `Bearer ${token}`
+        },
       })
 
       setResumeData(data.resume)
+      setRemoveBackground(false) // Reset after successful upload
       toast.success(data.message || 'Changes saved successfully!')
     } catch (error) {
       console.error('Error saving resume:', error)
-      toast.error('Error saving changes.')
+      console.error('Error details:', error.response?.data)
+      toast.error(error.response?.data?.message || 'Error saving changes.')
     }
   }
 
@@ -270,7 +303,7 @@ const ResumeBuilder = () => {
 
                 {activeSection.id === 'projects' && (
                   <ProjectForm
-                    data={resumeData.projects}
+                    data={resumeData.projects} // Fixed: using "projects"
                     onChange={(data) =>
                       setResumeData((prev) => ({ ...prev, projects: data }))
                     }
@@ -288,7 +321,13 @@ const ResumeBuilder = () => {
               </div>
 
               <button
-                onClick={()=>{toast.promise(saveResumeChanges,{loading:'Saving...'})}}
+                onClick={() => {
+                  toast.promise(saveResumeChanges(), {
+                    loading: 'Saving...',
+                    success: 'Saved!',
+                    error: 'Failed to save'
+                  })
+                }}
                 className="bg-gradient-to-r from-green-100 to-green-200 text-green-600 ring hover:ring-green-400 transition-all rounded-md px-6 py-2 mt-6 text-sm"
               >
                 Save Changes
