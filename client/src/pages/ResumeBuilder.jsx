@@ -175,7 +175,6 @@ const ResumeBuilder = () => {
 
       setResumeData(data.resume)
       setRemoveBackground(false) // Reset after successful upload
-      toast.success(data.message || 'Changes saved successfully!')
     } catch (error) {
       console.error('Error saving resume:', error)
       console.error('Error details:', error.response?.data)
