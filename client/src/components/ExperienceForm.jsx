@@ -1,7 +1,10 @@
 import { Briefcase, Plus, Sparkle, Trash2 } from 'lucide-react'
 import React from 'react'
+import { useState } from 'react'
 
 const ExperienceForm = ({ data, onChange }) => {
+    const {token} = useState(state=> state.auth)
+    const[generateingIndex, setGeneratingIndex] = useState(-1)
     const addExperience = () => {
         const newExperience = {
             company: '',

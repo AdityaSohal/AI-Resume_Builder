@@ -10,6 +10,9 @@ export const enhanceProfessionalSummary = async (req,res) => {
         if(!userContent){
             return res.status(400).json({message:'Missing Required Fields'})
         }
+        if (!process.env.GOOGLE_API_KEY) {
+            return res.status(500).json({message: 'AI service not configured'})
+        }
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         const prompt = `You are an expert in resume writing. Your task is to enhance the professional summary of the resume. The summary should be 1-2 sentences also highlighting the key features, skills, experiences, and career objectives. Make it compelling and ATS-friendly. and only return text no options or anything else. User content: ${userContent}`;
         const result = await model.generateContent(prompt);
@@ -29,6 +32,9 @@ export const enhanceJobDescription = async (req,res) => {
         const {userContent} = req.body;
         if(!userContent){
             return res.status(400).json({message:'Missing Required Fields'})
+        }
+        if (!process.env.GOOGLE_API_KEY) {
+            return res.status(500).json({message: 'AI service not configured'})
         }
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         const prompt = `You are an expert in resume writing, your task is to enhance this job description of a resume, the job description should only be 1-2 sentences also highlighting key features, responsibilities and achievements. use action verbs and quantifiality results where possible. Make it ATS-friendly and only return text no options or anything else. User content: ${userContent}`;
@@ -50,6 +56,9 @@ export const uploadResume = async (req,res) => {
         const userID = req.userID;
         if(!resumeText){
             return res.status(400).json({message:'Missing Required Fields'})
+        }
+        if (!process.env.GOOGLE_API_KEY) {
+            return res.status(500).json({message: 'AI service not configured'})
         }
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         const prompt = `You are an expert AI agent to extract data from resume. Extract data from this resume: ${resumeText}. Provide the data in the following JSON format with no additional text before or after:

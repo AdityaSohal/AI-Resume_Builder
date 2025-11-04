@@ -1,8 +1,33 @@
-import React from 'react'
-import { Sparkles } from 'lucide-react' 
+import React, { useState } from 'react'
+import { Loader2, Sparkles } from 'lucide-react'
+import { useSelector } from 'react-redux'
+import api from '../configs/api'
+import toast from 'react-hot-toast'
 
 const ProfessionalSummaryForm = ({ data, onChange }) => {
+    const { token } = useSelector(state => state.auth)
+    const [isGenerating, setIsGenerating] = useState(false)
+
+    const generateSummary = async () => {
+        if (!data) {
+            toast.error("Please enter some content to enhance")
+            return
+        }
+        setIsGenerating(true)
+        try {
+            const response = await api.post('/api/ai/enhance-pro-sum', { userContent: data }, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            onChange(response.data.enhancedContent)
+            toast.success("Summary enhanced successfully")
+        } catch {
+            toast.error("Failed to enhance summary")
+        } finally {
+            setIsGenerating(false)
+        }
+    }
     return (
+        
         <div className="space-y-4">
             {/* Header */}
             <div className="flex items-center justify-between">
@@ -14,12 +39,12 @@ const ProfessionalSummaryForm = ({ data, onChange }) => {
                         Add a short summary to your resume here.
                     </p>
                 </div>
-                <button
+                <button disabled = {isGenerating} onClick={generateSummary}
                     type="button"
                     className="flex items-center gap-2 px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50"
                 >
-                    <Sparkles className="size-4" />
-                    AI Enhance
+                    {isGenerating ?(<Loader2 className='size-4 animate-spin'/>):(<Sparkles className="size-4" />)}
+                    {isGenerating ? ("Enhancing..."):"AI Enhance"}
                 </button>
             </div>
 

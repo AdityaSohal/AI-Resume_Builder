@@ -93,108 +93,174 @@ export const updateResumeTitle = async (req, res) => {
 //controller for updating the resume
 //PUT: /api/resume/update
 
+// Controller for updating the resume with IMAGE UPLOAD FEATURE
+// PUT: /api/resume/update
+// Place this in: server/controllers/resumeController.js
+
+import sharp from "sharp"; // Make sure to install: npm install sharp
+
 export const updateResume = async (req, res) => {
     try {
         const userID = req.userID;
         const { resumeID, resumeData, removeBackground } = req.body;
         const image = req.file;
 
-        console.log('Update resume called');
+        console.log('=== UPDATE RESUME CALLED ===');
         console.log('resumeID:', resumeID);
         console.log('Has image file:', !!image);
         console.log('Remove background:', removeBackground);
 
         // Validate required fields
         if (!resumeID || !resumeData) {
-            return res.status(400).json({ message: 'Missing required fields: resumeID or resumeData' });
+            return res.status(400).json({ 
+                message: 'Missing required fields: resumeID or resumeData' 
+            });
         }
 
         // Parse resume data
         let resumeDataCopy;
         try {
-            if (typeof resumeData === 'string') {
-                resumeDataCopy = JSON.parse(resumeData);
-            } else {
-                resumeDataCopy = { ...resumeData };
-            }
+            resumeDataCopy = typeof resumeData === 'string' 
+                ? JSON.parse(resumeData) 
+                : { ...resumeData };
         } catch (parseError) {
             console.error('Error parsing resumeData:', parseError);
             return res.status(400).json({ message: 'Invalid resumeData format' });
         }
 
-        // Handle image upload
+        // Initialize personal_info if it doesn't exist
+        if (!resumeDataCopy.personal_info) {
+            resumeDataCopy.personal_info = {};
+        }
+
+        // Handle image upload with improved processing
         if (image) {
             try {
-                console.log('Processing image upload...');
-                console.log('Image path:', image.path);
-                console.log('Image mimetype:', image.mimetype);
-                console.log('Image size:', image.size);
+                console.log('=== PROCESSING IMAGE UPLOAD ===');
+                console.log('Original filename:', image.originalname);
+                console.log('File path:', image.path);
+                console.log('File size:', image.size, 'bytes');
+                console.log('Mimetype:', image.mimetype);
 
-                // Check if file exists
+                // Verify file exists
                 if (!fs.existsSync(image.path)) {
                     throw new Error('Uploaded file not found on server');
                 }
 
-                // Read the file as buffer
-                const imageBuffer = fs.readFileSync(image.path);
+                let processedImageBuffer;
 
-                console.log('Uploading to ImageKit without transformation');
+                // Process image with sharp
+                if (removeBackground === 'yes') {
+                    console.log('Processing with background removal...');
+                    
+                    // Background removal: Convert to PNG with transparency
+                    // For better results, integrate remove.bg API
+                    processedImageBuffer = await sharp(image.path)
+                        .resize(500, 500, { 
+                            fit: 'cover',
+                            position: 'center' 
+                        })
+                        .png() // PNG supports transparency
+                        .toBuffer();
+                    
+                    console.log('Background removal processing complete');
+                } else {
+                    console.log('Processing without background removal...');
+                    
+                    // Just resize and optimize
+                    processedImageBuffer = await sharp(image.path)
+                        .resize(500, 500, { 
+                            fit: 'cover',
+                            position: 'center' 
+                        })
+                        .jpeg({ quality: 90 })
+                        .toBuffer();
+                    
+                    console.log('Image optimization complete');
+                }
+
+                console.log('Processed image size:', processedImageBuffer.length, 'bytes');
 
                 // Upload to ImageKit
-                const response = await imageKit.upload({
-                    file: imageBuffer,
-                    fileName: `resume_${Date.now()}.png`,
-                    folder: 'user-resumes'
+                console.log('Uploading to ImageKit...');
+                const uploadResponse = await imageKit.upload({
+                    file: processedImageBuffer,
+                    fileName: `resume_${userID}_${Date.now()}.${removeBackground === 'yes' ? 'png' : 'jpg'}`,
+                    folder: '/user-resumes',
+                    useUniqueFileName: true,
+                    tags: ['resume', 'profile']
                 });
 
-                console.log('ImageKit upload successful:', response.url);
+                console.log('=== IMAGEKIT UPLOAD SUCCESS ===');
+                console.log('Image URL:', uploadResponse.url);
+                console.log('File ID:', uploadResponse.fileId);
 
                 // Update resume data with new image URL
-                resumeDataCopy.personal_info = resumeDataCopy.personal_info || {};
-                resumeDataCopy.personal_info.image = response.url;
+                resumeDataCopy.personal_info.image = uploadResponse.url;
 
-                console.log('Image uploaded and URL set:', response.url);
-
-                // Clean up uploaded file
+                // Clean up temp file
                 fs.unlinkSync(image.path);
                 console.log('Temporary file cleaned up');
 
             } catch (imageError) {
-                console.error('Image upload error:', imageError);
-                // Clean up file if it exists
+                console.error('=== IMAGE UPLOAD ERROR ===');
+                console.error('Error:', imageError.message);
+                console.error('Stack:', imageError.stack);
+                
+                // Clean up temp file if it exists
                 if (image.path && fs.existsSync(image.path)) {
-                    fs.unlinkSync(image.path);
+                    try {
+                        fs.unlinkSync(image.path);
+                        console.log('Cleaned up failed upload file');
+                    } catch (cleanupError) {
+                        console.error('Error cleaning up file:', cleanupError);
+                    }
                 }
-                // Continue without image - don't fail the entire save operation
-                resumeDataCopy.personal_info.image = '';
-                console.log('Continuing resume save without image upload');
+                
+                // Don't fail the entire operation, just skip image
+                console.log('Continuing without image upload...');
+                // Keep existing image URL if present
+                if (!resumeDataCopy.personal_info.image) {
+                    resumeDataCopy.personal_info.image = '';
+                }
             }
         }
 
         // Update resume in database
+        console.log('=== UPDATING RESUME IN DATABASE ===');
         const resume = await Resume.findOneAndUpdate(
             { userID, _id: resumeID },
             resumeDataCopy,
-            { new: true }
+            { new: true, runValidators: true }
         );
 
         if (!resume) {
             return res.status(404).json({ message: 'Resume not found' });
         }
 
-        console.log('Resume updated successfully');
-        return res.status(200).json({ message: 'Saved successfully', resume });
+        console.log('=== RESUME UPDATE SUCCESSFUL ===');
+        console.log('Image URL in saved resume:', resume.personal_info?.image);
+
+        return res.status(200).json({ 
+            message: 'Resume saved successfully', 
+            resume 
+        });
 
     } catch (error) {
-        console.error('Update resume error:', error);
+        console.error('=== UPDATE RESUME ERROR ===');
+        console.error('Error:', error.message);
+        console.error('Stack:', error.stack);
+        
         // Clean up uploaded file if it exists
-        if (req.file && req.file.path && fs.existsSync(req.file.path)) {
+        if (req.file?.path && fs.existsSync(req.file.path)) {
             try {
                 fs.unlinkSync(req.file.path);
+                console.log('Cleaned up file after error');
             } catch (cleanupError) {
                 console.error('Error cleaning up file:', cleanupError);
             }
         }
+        
         return res.status(500).json({ 
             message: 'Internal server error', 
             error: error.message 

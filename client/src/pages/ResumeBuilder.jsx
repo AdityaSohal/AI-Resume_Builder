@@ -125,62 +125,98 @@ const ResumeBuilder = () => {
   }
 
   // Save resume changes - FIXED VERSION
-  const saveResumeChanges = async () => {
-    try {
-      // Create a clean copy without circular references
-      const cleanResumeData = {
-        _id: resumeData._id,
-        title: resumeData.title,
-        personal_info: {
-          full_name: resumeData.personal_info?.full_name || '',
-          email: resumeData.personal_info?.email || '',
-          phone: resumeData.personal_info?.phone || '',
-          location: resumeData.personal_info?.location || '',
-          profession: resumeData.personal_info?.profession || '',
-          linkedin: resumeData.personal_info?.linkedin || '',
-          personal_website: resumeData.personal_info?.personal_website || '',
-          // Include existing image URL if it's a string
-          image: typeof resumeData.personal_info?.image === 'string' ? resumeData.personal_info.image : ''
-        },
-        professional_summary: resumeData.professional_summary || '',
-        experience: resumeData.experience || [],
-        education: resumeData.education || [],
-        projects: resumeData.projects || [],
-        skills: resumeData.skills || [],
-        template: resumeData.template || 'classic',
-        accent_color: resumeData.accent_color || '#3B82F6',
-        public: resumeData.public || false,
-      }
+  // Add this function to your ResumeBuilder.jsx component
+// Replace the existing saveResumeChanges function with this one
 
-      const formData = new FormData()
-      formData.append('resumeID', cleanResumeData._id)
-      formData.append('resumeData', JSON.stringify(cleanResumeData))
+const saveResumeChanges = async () => {
+  try {
+    console.log('=== SAVING RESUME CHANGES ===')
+    
+    // Create FormData for multipart upload
+    const formData = new FormData()
+    formData.append('resumeID', resumeData._id)
+    
+    // Create clean resume data copy (without the image file object)
+    const cleanResumeData = {
+      title: resumeData.title,
+      personal_info: {
+        full_name: resumeData.personal_info?.full_name || '',
+        email: resumeData.personal_info?.email || '',
+        phone: resumeData.personal_info?.phone || '',
+        location: resumeData.personal_info?.location || '',
+        profession: resumeData.personal_info?.profession || '',
+        linkedin: resumeData.personal_info?.linkedin || '',
+        personal_website: resumeData.personal_info?.personal_website || '',
+        // Keep existing image URL if it's a string (already uploaded)
+        image: typeof resumeData.personal_info?.image === 'string' 
+          ? resumeData.personal_info.image 
+          : ''
+      },
+      professional_summary: resumeData.professional_summary || '',
+      experience: resumeData.experience || [],
+      education: resumeData.education || [],
+      projects: resumeData.projects || [],
+      skills: resumeData.skills || [],
+      template: resumeData.template || 'classic',
+      accent_color: resumeData.accent_color || '#3B82F6',
+      public: resumeData.public || false,
+    }
+
+    // Append resume data as JSON string
+    formData.append('resumeData', JSON.stringify(cleanResumeData))
+    
+    // Handle NEW image upload if it's a File object (newly selected image)
+    if (resumeData.personal_info?.image && typeof resumeData.personal_info.image === 'object') {
+      console.log('Adding new image to form data:', resumeData.personal_info.image.name)
+      console.log('Image size:', resumeData.personal_info.image.size, 'bytes')
+      formData.append('image', resumeData.personal_info.image)
       
+      // Add removeBackground flag if checked
       if (removeBackground) {
+        console.log('Background removal enabled')
         formData.append('removeBackground', 'yes')
       }
-
-      // Handle image upload if it's a File object
-      if (resumeData.personal_info?.image && typeof resumeData.personal_info.image === 'object') {
-        console.log('Uploading image:', resumeData.personal_info.image.name)
-        formData.append('image', resumeData.personal_info.image)
-      }
-
-      // Don't set Content-Type header - let browser set it with boundary
-      const { data } = await api.put('/api/resume/update', formData, {
-        headers: { 
-          Authorization: `Bearer ${token}`
-        },
-      })
-
-      setResumeData(data.resume)
-      setRemoveBackground(false) // Reset after successful upload
-    } catch (error) {
-      console.error('Error saving resume:', error)
-      console.error('Error details:', error.response?.data)
-      toast.error(error.response?.data?.message || 'Error saving changes.')
+    } else if (typeof resumeData.personal_info?.image === 'string') {
+      console.log('Using existing image URL:', resumeData.personal_info.image)
     }
+
+    // Log FormData contents for debugging
+    console.log('FormData contents:')
+    for (let pair of formData.entries()) {
+      if (pair[1] instanceof File) {
+        console.log(pair[0], '-> File:', pair[1].name, pair[1].size, 'bytes')
+      } else {
+        console.log(pair[0], '->', typeof pair[1] === 'string' && pair[1].length > 100 
+          ? pair[1].substring(0, 100) + '...' 
+          : pair[1])
+      }
+    }
+
+    // Send request - Don't set Content-Type, let browser handle it for FormData
+    console.log('Sending update request...')
+    const { data } = await api.put('/api/resume/update', formData, {
+      headers: { 
+        Authorization: `Bearer ${token}`
+        // Don't set Content-Type - browser will set it correctly with boundary
+      },
+    })
+
+    console.log('=== SAVE SUCCESSFUL ===')
+    console.log('Updated resume received:', data.resume._id)
+    console.log('Image URL in response:', data.resume.personal_info?.image)
+
+    // Update local state with the response from server
+    setResumeData(data.resume)
+    setRemoveBackground(false) // Reset the toggle
+    
+    return Promise.resolve()
+  } catch (error) {
+    console.error('=== SAVE ERROR ===')
+    console.error('Error:', error.message)
+    console.error('Response:', error.response?.data)
+    throw error
   }
+}
 
   return (
     <div>

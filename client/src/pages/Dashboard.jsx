@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
   FilePenLineIcon,
   PencilIcon,
@@ -31,7 +31,7 @@ const Dashboard = () => {
   const navigate = useNavigate()
 
   // Load all resumes
-  const loadAllResume = async () => {
+  const loadAllResume = useCallback(async () => {
     try {
       const { data } = await api.get('/api/users/resume', {
         headers: { Authorization: `Bearer ${token}` }
@@ -40,11 +40,11 @@ const Dashboard = () => {
     } catch (error) {
       toast.error(error?.response?.data?.message || error.message)
     }
-  }
+  }, [token])
 
   useEffect(() => {
     loadAllResume()
-  }, [])
+  }, [loadAllResume])
 
   // Create Resume
   const createResume = async (event) => {
