@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { dummyResumeData } from '../assets/assets'
 import { useParams, Link } from 'react-router-dom'
 import ResumePreview from '../components/ResumePreview'
 import Loaders from '../components/Loaders'
 import { ArrowLeftIcon } from 'lucide-react'
+import api from '../configs/api'
 
 const Preview = () => {
   const { resumeID } = useParams()
@@ -12,9 +12,15 @@ const Preview = () => {
 
   useEffect(() => {
     const loadResume = async () => {
-      const foundResume = dummyResumeData.find(resume => resume._id === resumeID)
-      setResumeData(foundResume || null)
-      setIsLoading(false)
+      try {
+        const response = await api.get(`/resume/${resumeID}`)
+        setResumeData(response.data.resume)
+      } catch (error) {
+        console.error('Error loading resume:', error)
+        setResumeData(null)
+      } finally {
+        setIsLoading(false)
+      }
     }
     loadResume()
   }, [resumeID])

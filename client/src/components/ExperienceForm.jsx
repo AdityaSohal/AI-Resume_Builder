@@ -1,10 +1,13 @@
 import { Briefcase, Plus, Sparkle, Trash2 } from 'lucide-react'
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react'
+import { useSelector } from 'react-redux'
+import api from '../configs/api'
+import toast from 'react-hot-toast'
 
 const ExperienceForm = ({ data, onChange }) => {
-    const {token} = useState(state=> state.auth)
-    const[generateingIndex, setGeneratingIndex] = useState(-1)
+    const { token } = useSelector(state => state.auth)
+    const [generatingIndex, setGeneratingIndex] = useState(-1)
+
     const addExperience = () => {
         const newExperience = {
             company: '',
@@ -28,11 +31,35 @@ const ExperienceForm = ({ data, onChange }) => {
         onChange(updated)
     }
 
+    const enhanceDescription = async (index) => {
+        const experience = data[index]
+        if (!experience.description) {
+            toast.error('Please enter a description first')
+            return
+        }
+
+        setGeneratingIndex(index)
+        try {
+            const response = await api.post(
+                '/api/ai/enhance-job-desc',
+                { userContent: experience.description },
+                { headers: { Authorization: `Bearer ${token}` } }
+            )
+            updateExperience(index, 'description', response.data.enhancedContent)
+            toast.success('Description enhanced successfully')
+        } catch (error) {
+            toast.error('Failed to enhance description')
+        } finally {
+            setGeneratingIndex(-1)
+        }
+    }
+
     return (
         <div>
             <div className="flex items-center justify-between">
                 <div>
                     <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                        <Briefcase className="size-5 text-gray-700" />
                         Professional Experience
                     </h3>
                     <p className="text-sm text-gray-500">Add your job experience.</p>
@@ -54,7 +81,7 @@ const ExperienceForm = ({ data, onChange }) => {
                     <p className="text-sm">Click "Add Experience" to get started.</p>
                 </div>
             ) : (
-                <div className="space-y-4">
+                <div className="space-y-4 mt-4">
                     {data.map((experience, index) => (
                         <div
                             key={index}
@@ -66,6 +93,7 @@ const ExperienceForm = ({ data, onChange }) => {
                                 </h4>
                                 <button
                                     onClick={() => removeExperience(index)}
+                                    type="button"
                                     className="text-red-500 hover:text-red-700 transition-colors"
                                 >
                                     <Trash2 className="size-4" />
@@ -131,10 +159,12 @@ const ExperienceForm = ({ data, onChange }) => {
                                     </label>
                                     <button
                                         type="button"
-                                        className="flex items-center gap-1 px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors"
+                                        onClick={() => enhanceDescription(index)}
+                                        disabled={generatingIndex === index}
+                                        className="flex items-center gap-1 px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50"
                                     >
                                         <Sparkle className="h-3 w-3" />
-                                        Enhance with AI
+                                        {generatingIndex === index ? 'Enhancing...' : 'Enhance with AI'}
                                     </button>
                                 </div>
                                 <textarea
