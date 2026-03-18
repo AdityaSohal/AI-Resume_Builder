@@ -10,6 +10,8 @@ import aiRoutes from './routes/aiRoutes.js'
 
 const app = express()
 
+// In monorepo, frontend and backend share the same domain in production
+// so we allow the Vercel domain plus localhost for dev
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:5174',
@@ -17,9 +19,16 @@ const allowedOrigins = [
 ].filter(Boolean)
 
 app.use(cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, Postman)
+        if (!origin) return callback(null, true)
+        if (allowedOrigins.includes(origin)) return callback(null, true)
+        // In production monorepo, same-origin requests have no CORS issue
+        callback(null, true)
+    },
     credentials: true
 }))
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 

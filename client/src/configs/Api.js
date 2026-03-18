@@ -1,8 +1,8 @@
 import axios from 'axios'
 
-// FIX: filename was Api.js (capital A) but all imports use 'api' (lowercase).
-// This works on macOS/Windows but breaks on Linux due to case-sensitive filesystem.
-// Rename this file from Api.js to api.js on disk.
+// In monorepo deployment, frontend and backend share the same Vercel domain
+// so API calls use a relative path (no baseURL needed in production)
+// In local dev, we still need to point to localhost:3000
 const api = axios.create({
     baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
 })
