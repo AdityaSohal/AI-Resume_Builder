@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-dotenv.config()  // MUST be first — before any import that reads process.env
+dotenv.config()
 
 import express from 'express'
 import cors from 'cors'
@@ -9,19 +9,19 @@ import resumeRouter from './routes/resumeRoutes.js'
 import aiRoutes from './routes/aiRoutes.js'
 
 const app = express()
-const PORT = process.env.PORT || 3000
+
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    process.env.FRONTEND_URL
+].filter(Boolean)
 
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    origin: allowedOrigins,
     credentials: true
 }))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-
-app.use((req, res, next) => {
-    console.log(`${req.method} ${req.path}`)
-    next()
-})
 
 await connectDB()
 
@@ -39,13 +39,12 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Internal server error' })
 })
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`)
-    console.log('Available routes:')
-    console.log('  - POST /api/users/register')
-    console.log('  - POST /api/users/login')
-    console.log('  - GET  /api/users/data')
-    console.log('  - GET  /api/users/resume')
-    console.log('  - GET  /api/resume/public/:resumeID  (no auth)')
-    console.log('  - GET  /api/resume/:resumeID         (auth required)')
-})
+// Local development only
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 3000
+    app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`)
+    })
+}
+
+export default app
