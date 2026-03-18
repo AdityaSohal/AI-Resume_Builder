@@ -18,7 +18,6 @@ const MinimalTemplate = ({ data, accentColor }) => {
                 {data.personal_info?.profession && (
                     <p className="text-lg text-gray-700 mb-4">{data.personal_info.profession}</p>
                 )}
-
                 <div className="flex flex-wrap gap-6 text-sm text-gray-600">
                     {data.personal_info?.email && <span>{data.personal_info.email}</span>}
                     {data.personal_info?.phone && <span>{data.personal_info.phone}</span>}
@@ -26,6 +25,7 @@ const MinimalTemplate = ({ data, accentColor }) => {
                     {data.personal_info?.linkedin && (
                         <span className="break-all">{data.personal_info.linkedin}</span>
                     )}
+                    {/* FIX: was data.personal_info?.website — correct field name is personal_website */}
                     {data.personal_info?.personal_website && (
                         <span className="break-all">{data.personal_info.personal_website}</span>
                     )}
@@ -35,9 +35,7 @@ const MinimalTemplate = ({ data, accentColor }) => {
             {/* Professional Summary */}
             {data.professional_summary && (
                 <section className="mb-10">
-                    <p className=" text-gray-700">
-                        {data.professional_summary}
-                    </p>
+                    <p className="text-gray-700">{data.professional_summary}</p>
                 </section>
             )}
 
@@ -47,7 +45,6 @@ const MinimalTemplate = ({ data, accentColor }) => {
                     <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>
                         Experience
                     </h2>
-
                     <div className="space-y-6">
                         {data.experience.map((exp, index) => (
                             <div key={index}>
@@ -75,11 +72,10 @@ const MinimalTemplate = ({ data, accentColor }) => {
                     <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>
                         Projects
                     </h2>
-
                     <div className="space-y-4">
                         {data.projects.map((proj, index) => (
                             <div key={index} className="flex flex-col gap-2 justify-between items-baseline">
-                                <h3 className="text-lg font-medium ">{proj.name}</h3>
+                                <h3 className="text-lg font-medium">{proj.name}</h3>
                                 <p className="text-gray-600">{proj.description}</p>
                             </div>
                         ))}
@@ -93,7 +89,6 @@ const MinimalTemplate = ({ data, accentColor }) => {
                     <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>
                         Education
                     </h2>
-
                     <div className="space-y-4">
                         {data.education.map((edu, index) => (
                             <div key={index} className="flex justify-between items-baseline">
@@ -119,7 +114,6 @@ const MinimalTemplate = ({ data, accentColor }) => {
                     <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>
                         Skills
                     </h2>
-
                     <div className="text-gray-700">
                         {data.skills.join(" • ")}
                     </div>
