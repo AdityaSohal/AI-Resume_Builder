@@ -1,23 +1,14 @@
-import dotenv from 'dotenv'
-dotenv.config()
-
 import mongoose from 'mongoose'
 
 const connectDB = async () => {
+    if (mongoose.connection.readyState >= 1) return
+
     try {
-        mongoose.connection.on('connected', () => {
-            console.log('Database Connected Successfully')
-        })
-        let mongodbURI = process.env.MONGODB_URI
-        if (!mongodbURI) {
-            throw new Error('MONGODB_URI environment variable not set')
-        }
-        if (mongodbURI.endsWith('/')) {
-            mongodbURI = mongodbURI.slice(0, -1)
-        }
-        await mongoose.connect(`${mongodbURI}/resume-builder`)
+        await mongoose.connect(`${process.env.MONGODB_URI}/resume-builder`)
+        console.log('Database Connected Successfully')
     } catch (error) {
-        console.error('Error connecting to MongoDB: ', error)
+        console.error('Error connecting to MongoDB:', error.message)
+        throw error
     }
 }
 

@@ -28,21 +28,12 @@ app.use(cors({
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// Connect to DB before handling requests
-let isConnected = false
-const ensureDBConnected = async () => {
-    if (!isConnected) {
-        await connectDB()
-        isConnected = true
-    }
-}
-
 app.use(async (req, res, next) => {
     try {
-        await ensureDBConnected()
+        await connectDB()
         next()
     } catch (error) {
-        console.error('DB connection error:', error)
+        console.error('DB connection error:', error.message)
         res.status(500).json({ message: 'Database connection failed' })
     }
 })
@@ -57,11 +48,10 @@ app.use((req, res) => {
 })
 
 app.use((err, req, res, next) => {
-    console.error('Server Error:', err)
+    console.error('Server Error:', err.message)
     res.status(500).json({ message: 'Internal server error' })
 })
 
-// Local development only
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3000
     app.listen(PORT, () => {
