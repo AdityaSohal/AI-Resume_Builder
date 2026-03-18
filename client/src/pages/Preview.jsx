@@ -13,7 +13,9 @@ const Preview = () => {
   useEffect(() => {
     const loadResume = async () => {
       try {
-        const response = await api.get(`/resume/${resumeID}`)
+        // FIX: was '/resume/:resumeID' (missing /api prefix and /public segment)
+        // The public route is GET /api/resume/public/:resumeID (no auth required)
+        const response = await api.get(`/api/resume/public/${resumeID}`)
         setResumeData(response.data.resume)
       } catch (error) {
         console.error('Error loading resume:', error)
@@ -34,7 +36,7 @@ const Preview = () => {
           data={resumeData}
           template={resumeData.template}
           accentColor={resumeData.accent_color}
-          className='py-4 bg-white'
+          classes='py-4 bg-white'
         />
       </div>
     </div>

@@ -1,4 +1,6 @@
 import React from 'react'
+// FIX: import from ./templates/ (relative to this file's location in components/)
+// The original had '../components/templates/' which would go UP and then back into components — wrong path
 import ClassicTemplate from './templates/ClassicTemplate'
 import MinimalImageTemplate from './templates/MinimalImageTemplate'
 import MinimalTemplate from './templates/MinimalTemplate'
@@ -18,7 +20,6 @@ const ResumePreview = ({ data, template, accentColor, classes = "" }) => {
         }
     }
 
-    // Prevent rendering invalid children
     if (!data) return null;
 
     return (
