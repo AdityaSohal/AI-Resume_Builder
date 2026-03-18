@@ -5,8 +5,11 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
+    "scripts": {
     "start": "node server.js",
+    "build": "npm install",
     "server": "nodemon server.js"
+}
   },
   "engines": {
     "node": "20.x"
