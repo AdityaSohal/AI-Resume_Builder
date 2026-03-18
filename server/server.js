@@ -28,7 +28,24 @@ app.use(cors({
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-await connectDB()
+// Connect to DB before handling requests
+let isConnected = false
+const ensureDBConnected = async () => {
+    if (!isConnected) {
+        await connectDB()
+        isConnected = true
+    }
+}
+
+app.use(async (req, res, next) => {
+    try {
+        await ensureDBConnected()
+        next()
+    } catch (error) {
+        console.error('DB connection error:', error)
+        res.status(500).json({ message: 'Database connection failed' })
+    }
+})
 
 app.get('/', (req, res) => res.send('Server is live...'))
 app.use('/api/users', userRouter)
