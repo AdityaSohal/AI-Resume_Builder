@@ -22,14 +22,9 @@ export const registerUser = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-
         const newUser = await User.create({ name, email, password: hashedPassword });
-
         const token = generateToken(newUser._id);
 
-        // FIX: use toObject() and delete from the plain object
-        // Never mutate a mongoose document (newUser.password = undefined) — it can corrupt
-        // the mongoose identity map and cause subsequent findOne calls to return password: undefined
         const userResponse = newUser.toObject();
         delete userResponse.password;
 
@@ -40,8 +35,10 @@ export const registerUser = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Registration error:', error);
-        return res.status(500).json({ message: 'Internal server error' });
+        console.error('=== REGISTER ERROR ===');
+        console.error('Message:', error.message);
+        console.error('Stack:', error.stack);
+        return res.status(500).json({ message: 'Internal server error', debug: error.message });
     }
 };
 
@@ -50,48 +47,53 @@ export const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
 
+        console.log('--- LOGIN ATTEMPT ---');
+        console.log('Email:', email);
+        console.log('JWT_SECRET present:', !!process.env.JWT_SECRET);
+
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password are required' });
         }
 
-        // FIX: explicitly select password field — even though there's no `select: false` on the
-        // schema, being explicit prevents issues if the schema ever changes, and ensures we always
-        // get the field we need for bcrypt comparison
+        console.log('Step 1: finding user...');
         const user = await User.findOne({ email }).select('+password');
+        console.log('Step 2: user found:', !!user);
 
         if (!user) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
-        // FIX: guard against missing password hash before calling bcrypt.compare
-        // bcrypt.compare(anything, undefined) throws "data and hash arguments required"
-        // which was causing the 500 — the error escaped the try/catch in the old version
-        // because bcrypt v6 throws a typed error that wasn't being re-caught properly
+        console.log('Step 3: password field present:', !!user.password);
+        console.log('Step 4: hash preview:', user.password ? user.password.substring(0, 7) : 'MISSING');
+
         if (!user.password) {
-            console.error('Login error: user found but password field is missing for:', email);
+            console.error('Password field missing from DB for:', email);
             return res.status(500).json({ message: 'Internal server error' });
         }
 
-        // FIX: wrap bcrypt.compare in its own try/catch — it can throw (not just reject)
-        // when given bad input, and that throw was propagating past the outer catch as a 500
+        console.log('Step 5: running bcrypt.compare...');
         let isMatch;
         try {
             isMatch = await bcrypt.compare(password, user.password);
         } catch (bcryptError) {
-            console.error('bcrypt.compare error:', bcryptError.message);
+            console.error('bcrypt.compare threw:', bcryptError.message);
             return res.status(500).json({ message: 'Internal server error' });
         }
+
+        console.log('Step 6: password match:', isMatch);
 
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
+        console.log('Step 7: generating token...');
         const token = generateToken(user._id);
+        console.log('Step 8: token generated OK');
 
-        // FIX: use toObject() + delete instead of direct property mutation
         const userResponse = user.toObject();
         delete userResponse.password;
 
+        console.log('--- LOGIN SUCCESS ---');
         return res.status(200).json({
             message: 'Login successful',
             token,
@@ -99,8 +101,11 @@ export const loginUser = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Login error:', error);
-        return res.status(500).json({ message: 'Internal server error' });
+        console.error('=== LOGIN ERROR (FULL) ===');
+        console.error('Message:', error.message);
+        console.error('Stack:', error.stack);
+        // Send debug message in response so you can read it in the browser Network tab
+        return res.status(500).json({ message: 'Internal server error', debug: error.message });
     }
 };
 
@@ -109,13 +114,10 @@ export const getUserByID = async (req, res) => {
     try {
         const userID = req.userID;
         const user = await User.findById(userID).select('-password');
-
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
         return res.status(200).json({ user });
-
     } catch (error) {
         return res.status(400).json({ message: error.message });
     }

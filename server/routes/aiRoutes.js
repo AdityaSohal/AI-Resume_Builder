@@ -1,25 +1,16 @@
 import express from "express";
 import protect from "../middleware/authMiddleware.js";
 import {
-    createResume,
-    deleteResume,
-    findResumeByID,
-    getPublicResumeByID,
-    updateResume,
-    updateResumeTitle
-} from "../controllers/resumeController.js";
-import upload from "../configs/multer.js";
+    enhanceJobDescription,
+    enhanceProfessionalSummary,
+    uploadResume
+} from "../controllers/aiControllers.js";
 
-const resumeRouter = express.Router();
+const aiRoutes = express.Router();
 
-resumeRouter.post('/create', protect, createResume);
-resumeRouter.put('/update', upload.single('image'), protect, updateResume);
-resumeRouter.put('/update-title/:resumeID', protect, updateResumeTitle);
-resumeRouter.delete('/delete/:resumeID', protect, deleteResume);
+// All AI routes require authentication
+aiRoutes.post('/enhance-pro-sum', protect, enhanceProfessionalSummary);
+aiRoutes.post('/enhance-job-desc', protect, enhanceJobDescription);
+aiRoutes.post('/upload-resume', protect, uploadResume);
 
-// FIX: /public/:resumeID MUST be defined before /:resumeID
-// Otherwise Express matches "public" as the resumeID param and the public route never runs
-resumeRouter.get('/public/:resumeID', getPublicResumeByID);
-resumeRouter.get('/:resumeID', protect, findResumeByID);
-
-export default resumeRouter;
+export default aiRoutes;

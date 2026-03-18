@@ -10,41 +10,29 @@ const MinimalTemplate = ({ data, accentColor }) => {
 
     return (
         <div className="max-w-4xl mx-auto p-8 bg-white text-gray-900 font-light">
-            {/* Header */}
             <header className="mb-10">
                 <h1 className="text-4xl font-thin mb-4 tracking-wide">
                     {data.personal_info?.full_name || "Your Name"}
                 </h1>
-                {data.personal_info?.profession && (
-                    <p className="text-lg text-gray-700 mb-4">{data.personal_info.profession}</p>
-                )}
                 <div className="flex flex-wrap gap-6 text-sm text-gray-600">
                     {data.personal_info?.email && <span>{data.personal_info.email}</span>}
                     {data.personal_info?.phone && <span>{data.personal_info.phone}</span>}
                     {data.personal_info?.location && <span>{data.personal_info.location}</span>}
-                    {data.personal_info?.linkedin && (
-                        <span className="break-all">{data.personal_info.linkedin}</span>
-                    )}
-                    {/* FIX: was data.personal_info?.website — correct field name is personal_website */}
-                    {data.personal_info?.personal_website && (
-                        <span className="break-all">{data.personal_info.personal_website}</span>
-                    )}
+                    {data.personal_info?.linkedin && <span className="break-all">{data.personal_info.linkedin}</span>}
+                    {/* FIX: was data.personal_info?.website — correct field is personal_website */}
+                    {data.personal_info?.personal_website && <span className="break-all">{data.personal_info.personal_website}</span>}
                 </div>
             </header>
 
-            {/* Professional Summary */}
             {data.professional_summary && (
                 <section className="mb-10">
                     <p className="text-gray-700">{data.professional_summary}</p>
                 </section>
             )}
 
-            {/* Experience */}
             {data.experience && data.experience.length > 0 && (
                 <section className="mb-10">
-                    <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>
-                        Experience
-                    </h2>
+                    <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>Experience</h2>
                     <div className="space-y-6">
                         {data.experience.map((exp, index) => (
                             <div key={index}>
@@ -56,9 +44,7 @@ const MinimalTemplate = ({ data, accentColor }) => {
                                 </div>
                                 <p className="text-gray-600 mb-2">{exp.company}</p>
                                 {exp.description && (
-                                    <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                                        {exp.description}
-                                    </div>
+                                    <div className="text-gray-700 leading-relaxed whitespace-pre-line">{exp.description}</div>
                                 )}
                             </div>
                         ))}
@@ -66,12 +52,10 @@ const MinimalTemplate = ({ data, accentColor }) => {
                 </section>
             )}
 
-            {/* Projects */}
+            {/* FIX: was data.project — correct field is data.projects */}
             {data.projects && data.projects.length > 0 && (
                 <section className="mb-10">
-                    <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>
-                        Projects
-                    </h2>
+                    <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>Projects</h2>
                     <div className="space-y-4">
                         {data.projects.map((proj, index) => (
                             <div key={index} className="flex flex-col gap-2 justify-between items-baseline">
@@ -83,40 +67,28 @@ const MinimalTemplate = ({ data, accentColor }) => {
                 </section>
             )}
 
-            {/* Education */}
             {data.education && data.education.length > 0 && (
                 <section className="mb-10">
-                    <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>
-                        Education
-                    </h2>
+                    <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>Education</h2>
                     <div className="space-y-4">
                         {data.education.map((edu, index) => (
                             <div key={index} className="flex justify-between items-baseline">
                                 <div>
-                                    <h3 className="font-medium">
-                                        {edu.degree} {edu.field && `in ${edu.field}`}
-                                    </h3>
+                                    <h3 className="font-medium">{edu.degree} {edu.field && `in ${edu.field}`}</h3>
                                     <p className="text-gray-600">{edu.institution}</p>
                                     {edu.gpa && <p className="text-sm text-gray-500">GPA: {edu.gpa}</p>}
                                 </div>
-                                <span className="text-sm text-gray-500">
-                                    {formatDate(edu.graduation_date)}
-                                </span>
+                                <span className="text-sm text-gray-500">{formatDate(edu.graduation_date)}</span>
                             </div>
                         ))}
                     </div>
                 </section>
             )}
 
-            {/* Skills */}
             {data.skills && data.skills.length > 0 && (
                 <section>
-                    <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>
-                        Skills
-                    </h2>
-                    <div className="text-gray-700">
-                        {data.skills.join(" • ")}
-                    </div>
+                    <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>Skills</h2>
+                    <div className="text-gray-700">{data.skills.join(" • ")}</div>
                 </section>
             )}
         </div>

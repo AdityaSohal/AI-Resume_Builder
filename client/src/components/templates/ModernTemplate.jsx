@@ -12,7 +12,6 @@ const ModernTemplate = ({ data, accentColor }) => {
 
     return (
         <div className="max-w-4xl mx-auto bg-white text-gray-800">
-            {/* Header */}
             <header className="p-8 text-white" style={{ backgroundColor: accentColor }}>
                 <h1 className="text-4xl font-light mb-3">
                     {data.personal_info?.full_name || "Your Name"}
@@ -22,22 +21,13 @@ const ModernTemplate = ({ data, accentColor }) => {
                 )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                     {data.personal_info?.email && (
-                        <div className="flex items-center gap-2">
-                            <Mail className="size-4" />
-                            <span>{data.personal_info.email}</span>
-                        </div>
+                        <div className="flex items-center gap-2"><Mail className="size-4" /><span>{data.personal_info.email}</span></div>
                     )}
                     {data.personal_info?.phone && (
-                        <div className="flex items-center gap-2">
-                            <Phone className="size-4" />
-                            <span>{data.personal_info.phone}</span>
-                        </div>
+                        <div className="flex items-center gap-2"><Phone className="size-4" /><span>{data.personal_info.phone}</span></div>
                     )}
                     {data.personal_info?.location && (
-                        <div className="flex items-center gap-2">
-                            <MapPin className="size-4" />
-                            <span>{data.personal_info.location}</span>
-                        </div>
+                        <div className="flex items-center gap-2"><MapPin className="size-4" /><span>{data.personal_info.location}</span></div>
                     )}
                     {data.personal_info?.linkedin && (
                         <a target="_blank" rel="noreferrer" href={data.personal_info.linkedin} className="flex items-center gap-2">
@@ -47,7 +37,7 @@ const ModernTemplate = ({ data, accentColor }) => {
                             </span>
                         </a>
                     )}
-                    {/* FIX: was data.personal_info?.website — correct field name is personal_website */}
+                    {/* FIX: was data.personal_info?.website — correct field is personal_website */}
                     {data.personal_info?.personal_website && (
                         <a target="_blank" rel="noreferrer" href={data.personal_info.personal_website} className="flex items-center gap-2">
                             <Globe className="size-4" />
@@ -60,22 +50,16 @@ const ModernTemplate = ({ data, accentColor }) => {
             </header>
 
             <div className="p-8">
-                {/* Professional Summary */}
                 {data.professional_summary && (
                     <section className="mb-8">
-                        <h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
-                            Professional Summary
-                        </h2>
+                        <h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">Professional Summary</h2>
                         <p className="text-gray-700">{data.professional_summary}</p>
                     </section>
                 )}
 
-                {/* Experience */}
                 {data.experience && data.experience.length > 0 && (
                     <section className="mb-8">
-                        <h2 className="text-2xl font-light mb-6 pb-2 border-b border-gray-200">
-                            Experience
-                        </h2>
+                        <h2 className="text-2xl font-light mb-6 pb-2 border-b border-gray-200">Experience</h2>
                         <div className="space-y-6">
                             {data.experience.map((exp, index) => (
                                 <div key={index} className="relative pl-6 border-l border-gray-200">
@@ -89,9 +73,7 @@ const ModernTemplate = ({ data, accentColor }) => {
                                         </div>
                                     </div>
                                     {exp.description && (
-                                        <div className="text-gray-700 leading-relaxed mt-3 whitespace-pre-line">
-                                            {exp.description}
-                                        </div>
+                                        <div className="text-gray-700 leading-relaxed mt-3 whitespace-pre-line">{exp.description}</div>
                                     )}
                                 </div>
                             ))}
@@ -99,24 +81,16 @@ const ModernTemplate = ({ data, accentColor }) => {
                     </section>
                 )}
 
-                {/* Projects */}
+                {/* FIX: was data.project — correct field is data.projects */}
                 {data.projects && data.projects.length > 0 && (
                     <section className="mb-8">
-                        <h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
-                            Projects
-                        </h2>
+                        <h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">Projects</h2>
                         <div className="space-y-6">
                             {data.projects.map((p, index) => (
-                                <div
-                                    key={index}
-                                    className="relative pl-6 border-l border-gray-200"
-                                    style={{ borderLeftColor: accentColor }}
-                                >
+                                <div key={index} className="relative pl-6 border-l border-gray-200" style={{ borderLeftColor: accentColor }}>
                                     <h3 className="text-lg font-medium text-gray-900">{p.name}</h3>
                                     {p.description && (
-                                        <div className="text-gray-700 leading-relaxed text-sm mt-3">
-                                            {p.description}
-                                        </div>
+                                        <div className="text-gray-700 leading-relaxed text-sm mt-3">{p.description}</div>
                                     )}
                                 </div>
                             ))}
@@ -125,18 +99,13 @@ const ModernTemplate = ({ data, accentColor }) => {
                 )}
 
                 <div className="grid sm:grid-cols-2 gap-8">
-                    {/* Education */}
                     {data.education && data.education.length > 0 && (
                         <section>
-                            <h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
-                                Education
-                            </h2>
+                            <h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">Education</h2>
                             <div className="space-y-4">
                                 {data.education.map((edu, index) => (
                                     <div key={index}>
-                                        <h3 className="font-semibold text-gray-900">
-                                            {edu.degree} {edu.field && `in ${edu.field}`}
-                                        </h3>
+                                        <h3 className="font-semibold text-gray-900">{edu.degree} {edu.field && `in ${edu.field}`}</h3>
                                         <p style={{ color: accentColor }}>{edu.institution}</p>
                                         <div className="flex justify-between items-center text-sm text-gray-600">
                                             <span>{formatDate(edu.graduation_date)}</span>
@@ -148,19 +117,12 @@ const ModernTemplate = ({ data, accentColor }) => {
                         </section>
                     )}
 
-                    {/* Skills */}
                     {data.skills && data.skills.length > 0 && (
                         <section>
-                            <h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
-                                Skills
-                            </h2>
+                            <h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">Skills</h2>
                             <div className="flex flex-wrap gap-2">
                                 {data.skills.map((skill, index) => (
-                                    <span
-                                        key={index}
-                                        className="px-3 py-1 text-sm text-white rounded-full"
-                                        style={{ backgroundColor: accentColor }}
-                                    >
+                                    <span key={index} className="px-3 py-1 text-sm text-white rounded-full" style={{ backgroundColor: accentColor }}>
                                         {skill}
                                     </span>
                                 ))}
